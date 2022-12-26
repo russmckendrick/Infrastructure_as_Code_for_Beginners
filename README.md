@@ -1,1 +1,1 @@
-# Infrastructure_as_Code_for_Beginners
+# Infrastructure as Code for Beginners
