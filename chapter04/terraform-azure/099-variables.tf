@@ -39,6 +39,7 @@ variable "vnet_subnets" {
     address_prefix                            = string
     private_endpoint_network_policies_enabled = bool
     service_endpoints                         = list(string)
+    service_delegations                       = map(map(list(string)))
   }))
   default = {
     virtual_network_subnets_001 = {
@@ -46,12 +47,25 @@ variable "vnet_subnets" {
       address_prefix                            = "10.0.0.0/27"
       private_endpoint_network_policies_enabled = true
       service_endpoints                         = ["Microsoft.Storage"]
+      service_delegations                       = {}
     },
     virtual_network_subnets_002 = {
       subnet_name                               = "endpoints"
       address_prefix                            = "10.0.0.32/27"
       private_endpoint_network_policies_enabled = true
       service_endpoints                         = ["Microsoft.Storage"]
+      service_delegations                       = {}
+    },
+    virtual_network_subnets_003 = {
+      subnet_name                               = "database"
+      address_prefix                            = "10.0.0.64/27"
+      private_endpoint_network_policies_enabled = true
+      service_endpoints                         = ["Microsoft.Storage"]
+      service_delegations = {
+        fs = {
+          "Microsoft.DBforMySQL/flexibleServers" = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+        }
+      }
     },
   }
 }
@@ -59,6 +73,11 @@ variable "vnet_subnets" {
 variable "subnet_for_endpoints" {
   description = "Reference to put the private endpoint in"
   default     = "virtual_network_subnets_002"
+}
+
+variable "subnet_for_database" {
+  description = "Reference to put the private endpoint in"
+  default     = "virtual_network_subnets_003"
 }
 
 # Storeage Variables
