@@ -31,5 +31,6 @@ resource "azurerm_subnet" "vnet_subnets" {
   resource_group_name                       = azurerm_resource_group.resource_group.name
   virtual_network_name                      = azurerm_virtual_network.vnet.name
   address_prefixes                          = [each.value.address_prefix]
+  service_endpoints                         = try(each.value.service_endpoints, [])
   private_endpoint_network_policies_enabled = each.value.private_endpoint_network_policies_enabled
 }

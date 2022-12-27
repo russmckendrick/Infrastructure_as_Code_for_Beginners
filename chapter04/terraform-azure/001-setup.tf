@@ -13,6 +13,9 @@ terraform {
     random = {
       source = "hashicorp/random" # https://registry.terraform.io/providers/hashicorp/random/latest
     }
+    http = {
+      source = "hashicorp/http" # https://registry.terraform.io/providers/hashicorp/http/latest
+    }
   }
 }
 
