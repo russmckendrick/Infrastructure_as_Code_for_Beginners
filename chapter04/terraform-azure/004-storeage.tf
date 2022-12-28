@@ -20,7 +20,7 @@ resource "azurerm_storage_account" "sa" {
   resource_group_name       = azurerm_resource_group.resource_group.name
   location                  = azurerm_resource_group.resource_group.location
   account_tier              = var.sa_account_tier
-  account_kind              = "FileStorage"
+  account_kind              = var.sa_account_kind
   account_replication_type  = var.sa_account_replication_type
   enable_https_traffic_only = var.sa_enable_https_traffic_only
   min_tls_version           = var.sa_min_tls_version
@@ -35,21 +35,22 @@ data "http" "current_ip" {
 # Allow access to our storeage account from the trusted IPs and networks
 resource "azurerm_storage_account_network_rules" "sa" {
   storage_account_id = azurerm_storage_account.sa.id
-  default_action     = "Deny"
-  ip_rules           = setunion(var.sa_trusted_ips, ["${jsondecode(data.http.current_ip.response_body).ip}"])
+  default_action     = var.sa_network_default_action
+  ip_rules           = setunion(var.sa_network_trusted_ips, ["${jsondecode(data.http.current_ip.response_body).ip}"])
+  bypass             = var.sa_network_bypass
   virtual_network_subnet_ids = [
     for subnet_id in azurerm_subnet.vnet_subnets :
     subnet_id.id
   ]
-  bypass = ["Metrics"]
+
 }
 
 # Create the NFS Share
 resource "azurerm_storage_share" "nfs_share" {
-  name                 = "sharename"
+  name                 = replace(var.name, "-", "")
   storage_account_name = azurerm_storage_account.sa.name
-  quota                = 100
-  enabled_protocol     = "NFS"
+  quota                = var.nfs_share_quota
+  enabled_protocol     = var.nfs_enbled_protocol
 
   depends_on = [
     azurerm_storage_account_network_rules.sa

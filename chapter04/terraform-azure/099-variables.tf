@@ -88,6 +88,11 @@ variable "sa_account_tier" {
   default     = "Premium"
 }
 
+variable "sa_account_kind" {
+  description = "What kind of storage account do we want to deploy"
+  default     = "FileStorage"
+}
+
 variable "sa_account_replication_type" {
   description = "What type of replication do we want to use"
   default     = "LRS"
@@ -104,8 +109,76 @@ variable "sa_min_tls_version" {
   default     = "TLS1_2"
 }
 
-variable "sa_trusted_ips" {
+variable "sa_network_trusted_ips" {
   description = "Optional list if IP addresses which need access, your current IP will be added automatically"
+  type        = list(any)
   default = [
   ]
+}
+
+variable "sa_network_bypass" {
+  description = "Optional list if IP addresses which need access, your current IP will be added automatically"
+  type        = list(any)
+  default = [
+    "Metrics",
+    "Logging",
+    "AzureServices",
+  ]
+}
+
+variable "sa_network_default_action" {
+  description = "What is the default action for the network rules"
+  type        = string
+  default     = "Deny"
+}
+
+variable "nfs_share_quota" {
+  description = "The quota for the NFS share"
+  type        = number
+  default     = 100
+}
+
+variable "nfs_enbled_protocol" {
+  description = "The protocol to use for the NFS share"
+  type        = string
+  default     = "NFS"
+}
+
+# Database Variables
+######################################################################################################
+
+variable "database_administrator_login" {
+  description = "The admin user for the database"
+  type        = string
+  default     = "wordpress"
+}
+
+variable "database_backup_retention_days" {
+  description = "The number of days to keep backups for"
+  type        = number
+  default     = 7
+}
+
+variable "database_sku_name" {
+  description = "The sku name for the database"
+  type        = string
+  default     = "GP_Standard_B1ms"
+}
+
+variable "database_zone" {
+  description = "The sku name for the database"
+  type        = number
+  default     = 1
+}
+
+variable "databaqse_charset" {
+  description = "The charset for the database"
+  type        = string
+  default     = "utf8"
+}
+
+variable "database_collation" {
+  description = "The collation for the database"
+  type        = string
+  default     = "utf8_general_ci"
 }
