@@ -27,9 +27,8 @@ resource "azurerm_private_dns_zone_virtual_network_link" "mysql_flexible_server"
 }
 
 resource "random_password" "database_admin_password" {
-  length           = 16
-  special          = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"
+  length  = 16
+  special = false
 }
 
 resource "azurerm_mysql_flexible_server" "mysql_flexible_server" {
@@ -50,10 +49,25 @@ resource "azurerm_mysql_flexible_server" "mysql_flexible_server" {
   ]
 }
 
+resource "azurerm_mysql_flexible_server_configuration" "require_secure_transport" {
+  name                = "require_secure_transport"
+  resource_group_name = azurerm_resource_group.resource_group.name
+  server_name         = azurerm_mysql_flexible_server.mysql_flexible_server.name
+  value               = "OFF"
+
+  depends_on = [
+    azurerm_mysql_flexible_server.mysql_flexible_server
+  ]
+}
+
 resource "azurerm_mysql_flexible_database" "wordpress_database" {
   name                = azurecaf_name.database.result
   resource_group_name = azurerm_resource_group.resource_group.name
   server_name         = azurerm_mysql_flexible_server.mysql_flexible_server.name
   charset             = var.databaqse_charset
   collation           = var.database_collation
+
+  depends_on = [
+    azurerm_mysql_flexible_server_configuration.require_secure_transport
+  ]
 }

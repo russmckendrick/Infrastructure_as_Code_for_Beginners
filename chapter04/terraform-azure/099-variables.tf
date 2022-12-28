@@ -80,6 +80,11 @@ variable "subnet_for_database" {
   default     = "virtual_network_subnets_003"
 }
 
+variable "subnet_for_vms" {
+  description = "Reference to put the virtual machines in"
+  default     = "virtual_network_subnets_001"
+}
+
 # Storeage Variables
 ######################################################################################################
 
@@ -162,7 +167,7 @@ variable "database_backup_retention_days" {
 variable "database_sku_name" {
   description = "The sku name for the database"
   type        = string
-  default     = "GP_Standard_B1ms"
+  default     = "B_Standard_B1ms"
 }
 
 variable "database_zone" {
@@ -181,4 +186,49 @@ variable "database_collation" {
   description = "The collation for the database"
   type        = string
   default     = "utf8_general_ci"
+}
+
+# Virtual Machine Variables
+######################################################################################################
+
+variable "vm_size" {
+  description = "The size of the virtual machine"
+  type        = string
+  default     = "Standard_B1ms"
+}
+
+variable "vm_image_publisher" {
+  description = "The publisher of the image"
+  type        = string
+  default     = "Canonical"
+}
+
+variable "vm_image_offer" {
+  description = "The offer of the image"
+  type        = string
+  default     = "0001-com-ubuntu-server-focal"
+}
+
+variable "vm_image_sku" {
+  description = "The sku of the image"
+  type        = string
+  default     = "20_04-LTS"
+}
+
+variable "vm_image_version" {
+  description = "The version of the image"
+  type        = string
+  default     = "latest"
+}
+
+variable "vm_admin_username" {
+  description = "The admin user for the virtual machine"
+  type        = string
+  default     = "adminuser"
+}
+
+variable "vm_admin_ssh_key_path" {
+  description = "The path to the ssh key"
+  type        = string
+  default     = "~/.ssh/id_rsa.pub"
 }

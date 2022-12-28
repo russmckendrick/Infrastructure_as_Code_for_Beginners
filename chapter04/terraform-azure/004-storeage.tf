@@ -57,7 +57,7 @@ resource "azurerm_storage_share" "nfs_share" {
   ]
 }
 
-# Create the private zone for privatelink.database.windows.net
+# Create the private zone for privatelink.file.core.windows.net
 resource "azurerm_private_dns_zone" "storage_share_private_zone" {
   name                = "privatelink.file.core.windows.net"
   resource_group_name = azurerm_resource_group.resource_group.name
