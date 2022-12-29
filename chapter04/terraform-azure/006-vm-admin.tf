@@ -43,13 +43,14 @@ resource "random_password" "vm_admin_password" {
 
 # Launch the admin VM resource
 resource "azurerm_linux_virtual_machine" "admin_vm" {
-  name                = azurecaf_name.admin_vm.result
-  resource_group_name = azurerm_resource_group.resource_group.name
-  location            = azurerm_resource_group.resource_group.location
-  size                = var.vm_size
-  admin_username      = var.vm_admin_username
-  admin_password      = random_password.vm_admin_password.result
-  tags                = var.default_tags
+  name                            = azurecaf_name.admin_vm.result
+  resource_group_name             = azurerm_resource_group.resource_group.name
+  location                        = azurerm_resource_group.resource_group.location
+  size                            = var.vm_size
+  admin_username                  = var.vm_admin_username
+  admin_password                  = random_password.vm_admin_password.result
+  disable_password_authentication = false
+  tags                            = var.default_tags
 
   network_interface_ids = [
     azurerm_network_interface.admin_vm.id,

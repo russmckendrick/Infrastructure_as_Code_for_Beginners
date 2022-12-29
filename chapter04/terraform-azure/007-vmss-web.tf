@@ -15,15 +15,16 @@ resource "azurecaf_name" "web_vmss_nic" {
 
 # Create the Azure Virtual Machine Scale Set for the web servers using a trimmed down version of the cloud-init script
 resource "azurerm_linux_virtual_machine_scale_set" "web" {
-  name                = azurecaf_name.web_vmss.result
-  resource_group_name = azurerm_resource_group.resource_group.name
-  location            = azurerm_resource_group.resource_group.location
-  sku                 = var.vm_size
-  instances           = var.number_of_web_servers
-  admin_username      = var.vm_admin_username
-  admin_password      = random_password.vm_admin_password.result
-  overprovision       = false
-  tags                = var.default_tags
+  name                            = azurecaf_name.web_vmss.result
+  resource_group_name             = azurerm_resource_group.resource_group.name
+  location                        = azurerm_resource_group.resource_group.location
+  sku                             = var.vm_size
+  instances                       = var.number_of_web_servers
+  admin_username                  = var.vm_admin_username
+  admin_password                  = random_password.vm_admin_password.result
+  disable_password_authentication = false
+  overprovision                   = false
+  tags                            = var.default_tags
 
   source_image_reference {
     publisher = var.vm_image_publisher
