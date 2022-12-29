@@ -1,4 +1,4 @@
-# Create the name for the storeage account
+# Create the azurecaf_name resources, which generates a unique name for an Azure resource of a specified type
 resource "azurecaf_name" "sa" {
   name          = var.name
   resource_type = "azurerm_storage_account"
@@ -6,15 +6,13 @@ resource "azurecaf_name" "sa" {
   random_length = 5
   clean_input   = true
 }
-
-# Create the name for the private endpoint
 resource "azurecaf_name" "sa_endpoint" {
   name          = azurecaf_name.sa.result
   resource_type = "azurerm_private_endpoint"
   clean_input   = true
 }
 
-# Create the storage account
+# This block of code creates a resource of type "azurerm_storage_account", which represents an Azure Storage Account
 resource "azurerm_storage_account" "sa" {
   name                      = azurecaf_name.sa.result
   resource_group_name       = azurerm_resource_group.resource_group.name
@@ -27,12 +25,12 @@ resource "azurerm_storage_account" "sa" {
   tags                      = var.default_tags
 }
 
-# Get the IP of the current machine
+# This block of code gets information on the public IP address of the current machine
 data "http" "current_ip" {
   url = "https://api.ipify.org?format=json"
 }
 
-# Allow access to our storeage account from the trusted IPs and networks
+# This block of code creates a resource of type "azurerm_storage_account_network_rules", which represents the network rules for an Azure Storage Account using the IP address of the current machine
 resource "azurerm_storage_account_network_rules" "sa" {
   storage_account_id = azurerm_storage_account.sa.id
   default_action     = var.sa_network_default_action
@@ -45,7 +43,7 @@ resource "azurerm_storage_account_network_rules" "sa" {
 
 }
 
-# Create the NFS Share
+# This block of code creates a resource of type "azurerm_storage_share", which represents an Azure Storage Share
 resource "azurerm_storage_share" "nfs_share" {
   name                 = replace(var.name, "-", "")
   storage_account_name = azurerm_storage_account.sa.name
@@ -57,14 +55,13 @@ resource "azurerm_storage_share" "nfs_share" {
   ]
 }
 
-# Create the private zone for privatelink.file.core.windows.net
+# This block of code creates a resource of type "azurerm_private_dns_zone", which represents a private DNS zone
 resource "azurerm_private_dns_zone" "storage_share_private_zone" {
   name                = "privatelink.file.core.windows.net"
   resource_group_name = azurerm_resource_group.resource_group.name
   tags                = var.default_tags
 }
 
-# Link the private to the vnet
 resource "azurerm_private_dns_zone_virtual_network_link" "storage_share_private_zone" {
   name                  = "link-${azurerm_virtual_network.vnet.name}"
   resource_group_name   = azurerm_resource_group.resource_group.name
@@ -74,7 +71,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "storage_share_private_
   tags                  = var.default_tags
 }
 
-# Create the Private Endpoint
+# This block of code creates a resource of type "azurerm_private_endpoint", which represents a private endpoint
 resource "azurerm_private_endpoint" "storage_share_endpoint" {
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = azurerm_resource_group.resource_group.location

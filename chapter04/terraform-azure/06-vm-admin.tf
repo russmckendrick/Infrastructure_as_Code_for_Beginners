@@ -1,3 +1,5 @@
+# Create the azurecaf_name resources, which generates a unique name for an Azure resource of a specified type
+
 resource "azurecaf_name" "admin_vm" {
   name          = var.name
   resource_type = "azurerm_linux_virtual_machine"
@@ -12,6 +14,7 @@ resource "azurecaf_name" "admin_vm_nic" {
   clean_input   = true
 }
 
+# Create the network interface for the admin VM
 resource "azurerm_network_interface" "admin_vm" {
   name                = azurecaf_name.admin_vm_nic.result
   resource_group_name = azurerm_resource_group.resource_group.name
@@ -24,6 +27,7 @@ resource "azurerm_network_interface" "admin_vm" {
   }
 }
 
+# Launch the admin VM resource
 resource "azurerm_linux_virtual_machine" "admin_vm" {
   name                = azurecaf_name.admin_vm.result
   resource_group_name = azurerm_resource_group.resource_group.name
@@ -60,6 +64,7 @@ resource "azurerm_linux_virtual_machine" "admin_vm" {
   }))
 }
 
+# Associate the admin VM with the load balancer
 resource "azurerm_network_interface_backend_address_pool_association" "admin_vm" {
   network_interface_id    = azurerm_network_interface.admin_vm.id
   ip_configuration_name   = "internal"
