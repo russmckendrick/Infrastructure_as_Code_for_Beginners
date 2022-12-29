@@ -25,13 +25,28 @@ variable "default_tags" {
   }
 }
 
-# Web Server Variables
+# Web Server and Wordpress Variables
 ######################################################################################################
 
 variable "number_of_web_servers" {
   description = "How many web servers do we want to deploy"
   type        = number
   default     = 2
+}
+
+variable "wp_title" {
+  description = "The title of the Wordpress site"
+  default     = "IAC Wordpress"
+}
+
+variable "wp_admin_user" {
+  description = "The username for the Wordpress admin account"
+  default     = "admin"
+}
+
+variable "wp_admin_email" {
+  description = "The email address for the Wordpress admin account"
+  default     = "test@test.com"
 }
 
 # Networking Variables

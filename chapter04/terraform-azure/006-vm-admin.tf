@@ -28,6 +28,19 @@ resource "azurerm_network_interface" "admin_vm" {
   }
 }
 
+# Random password for Wordpress admin account
+resource "random_password" "wordpress_admin_password" {
+  length           = 16
+  special          = true
+  override_special = "_%@"
+}
+
+# Random password for virtual machines
+resource "random_password" "vm_admin_password" {
+  length  = 16
+  special = false
+}
+
 # Launch the admin VM resource
 resource "azurerm_linux_virtual_machine" "admin_vm" {
   name                = azurecaf_name.admin_vm.result
@@ -35,16 +48,12 @@ resource "azurerm_linux_virtual_machine" "admin_vm" {
   location            = azurerm_resource_group.resource_group.location
   size                = var.vm_size
   admin_username      = var.vm_admin_username
+  admin_password      = random_password.vm_admin_password.result
   tags                = var.default_tags
 
   network_interface_ids = [
     azurerm_network_interface.admin_vm.id,
   ]
-
-  admin_ssh_key {
-    username   = var.vm_admin_username
-    public_key = file("${var.vm_admin_ssh_key_path}")
-  }
 
   os_disk {
     caching              = "ReadWrite"
@@ -65,6 +74,10 @@ resource "azurerm_linux_virtual_machine" "admin_vm" {
     tmpl_database_name     = "${azurerm_mysql_flexible_database.wordpress_database.name}"
     tmpl_file_share        = "${azurerm_storage_account.sa.name}.file.core.windows.net:/${azurerm_storage_account.sa.name}/${azurerm_storage_share.nfs_share.name}"
     tmpl_wordpress_url     = "http://${azurerm_public_ip.load_balancer.ip_address}"
+    tmpl_wp_title          = "${var.wp_title}"
+    tmpl_wp_admin_user     = "${var.wp_admin_user}"
+    tmpl_wp_admin_password = "${random_password.wordpress_admin_password.result}"
+    tmpl_wp_admin_email    = "${var.wp_admin_email}"
   }))
 }
 

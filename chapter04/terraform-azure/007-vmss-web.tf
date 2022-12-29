@@ -21,12 +21,9 @@ resource "azurerm_linux_virtual_machine_scale_set" "web" {
   sku                 = var.vm_size
   instances           = var.number_of_web_servers
   admin_username      = var.vm_admin_username
+  admin_password      = random_password.vm_admin_password.result
+  overprovision       = false
   tags                = var.default_tags
-
-  admin_ssh_key {
-    username   = var.vm_admin_username
-    public_key = file("${var.vm_admin_ssh_key_path}")
-  }
 
   source_image_reference {
     publisher = var.vm_image_publisher
