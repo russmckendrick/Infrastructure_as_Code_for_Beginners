@@ -82,6 +82,7 @@ resource "azurerm_public_ip" "load_balancer" {
   name                = azurecaf_name.load_balancer_pip.result
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = azurerm_resource_group.resource_group.location
+  sku                 = "Standard"
   allocation_method   = "Static"
   tags                = var.default_tags
 }
@@ -92,6 +93,7 @@ resource "azurerm_lb" "load_balancer" {
   name                = azurecaf_name.load_balancer.result
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = azurerm_resource_group.resource_group.location
+  sku                 = "Standard"
   tags                = var.default_tags
 
   # Create a frontend IP configuration using the public IP address from the azurerm_public_ip resource

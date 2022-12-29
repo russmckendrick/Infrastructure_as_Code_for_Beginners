@@ -19,6 +19,7 @@ resource "azurerm_network_interface" "admin_vm" {
   name                = azurecaf_name.admin_vm_nic.result
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = azurerm_resource_group.resource_group.location
+  tags                = var.default_tags
 
   ip_configuration {
     name                          = "internal"
@@ -34,6 +35,8 @@ resource "azurerm_linux_virtual_machine" "admin_vm" {
   location            = azurerm_resource_group.resource_group.location
   size                = var.vm_size
   admin_username      = var.vm_admin_username
+  tags                = var.default_tags
+
   network_interface_ids = [
     azurerm_network_interface.admin_vm.id,
   ]
@@ -54,6 +57,7 @@ resource "azurerm_linux_virtual_machine" "admin_vm" {
     sku       = var.vm_image_sku
     version   = var.vm_image_version
   }
+
   user_data = base64encode(templatefile("vm-cloud-init-admin.yml.tftpl", {
     tmpl_database_username = "${var.database_administrator_login}"
     tmpl_database_password = "${random_password.database_admin_password.result}"
