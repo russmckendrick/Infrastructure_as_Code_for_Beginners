@@ -25,6 +25,15 @@ variable "default_tags" {
   }
 }
 
+# Web Server Variables
+######################################################################################################
+
+variable "number_of_web_servers" {
+  description = "How many web servers do we want to deploy"
+  type        = number
+  default     = 2
+}
+
 # Networking Variables
 ######################################################################################################
 variable "vnet_address_space" {

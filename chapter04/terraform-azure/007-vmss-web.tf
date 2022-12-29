@@ -19,7 +19,7 @@ resource "azurerm_linux_virtual_machine_scale_set" "web" {
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = azurerm_resource_group.resource_group.location
   sku                 = var.vm_size
-  instances           = 2
+  instances           = var.number_of_web_servers
   admin_username      = var.vm_admin_username
   tags                = var.default_tags
 
