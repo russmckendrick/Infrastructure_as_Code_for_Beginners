@@ -24,10 +24,6 @@ provider "azurerm" {
   features {}
 }
 
-# Configure the Azure CAF Provider
-provider "azurecaf" {
-}
-
 # Use the the Azure Region module to get the short name of the Azure region for more
 # details see: https://registry.terraform.io/modules/claranet/regions/azurerm/latest 
 module "azure_region" {

@@ -37,8 +37,13 @@ resource "random_password" "wordpress_admin_password" {
 
 # Random password for virtual machines
 resource "random_password" "vm_admin_password" {
-  length  = 16
-  special = false
+  length           = 16
+  min_upper        = 2
+  min_lower        = 2
+  min_special      = 2
+  number           = true
+  special          = true
+  override_special = "!@#$%&"
 }
 
 # Launch the admin VM resource

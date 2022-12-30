@@ -53,7 +53,8 @@ variable "wp_admin_email" {
 ######################################################################################################
 variable "vnet_address_space" {
   description = "The address space of vnet"
-  default     = "10.0.0.0/24"
+  type        = list(any)
+  default     = ["10.0.0.0/24"]
 }
 
 variable "vnet_subnets" {
