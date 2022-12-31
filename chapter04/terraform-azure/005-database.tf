@@ -59,10 +59,6 @@ resource "azurerm_mysql_flexible_server_configuration" "require_secure_transport
   resource_group_name = azurerm_resource_group.resource_group.name
   server_name         = azurerm_mysql_flexible_server.mysql_flexible_server.name
   value               = "OFF"
-
-  depends_on = [
-    azurerm_mysql_flexible_server.mysql_flexible_server
-  ]
 }
 
 # Create a database for the WordPress application on the MySQL Flexible Server

@@ -179,6 +179,11 @@ resource "azurerm_network_security_rule" "AllowHTTP" {
   network_security_group_name = azurerm_network_security_group.nsg.name
 }
 
+# This block of code gets information on the public IP address of the current machine
+data "http" "current_ip" {
+  url = "https://api.ipify.org?format=json"
+}
+
 resource "azurerm_network_security_rule" "AllowSSH" {
   name        = "AllowSSH"
   description = "Allow SSH"
@@ -186,8 +191,8 @@ resource "azurerm_network_security_rule" "AllowSSH" {
   direction   = "Inbound"
   access      = "Allow"
   protocol    = "Tcp"
-  # Merge the list of trusted IPs from the var.sa_network_trusted_ips variable and the current IP address
-  source_address_prefixes     = setunion(var.sa_network_trusted_ips, ["${jsondecode(data.http.current_ip.response_body).ip}"])
+  # Merge the list of trusted IPs from the var.network_trusted_ips variable and the current IP address
+  source_address_prefixes     = setunion(var.network_trusted_ips, ["${jsondecode(data.http.current_ip.response_body).ip}"])
   source_port_range           = "*"
   destination_port_range      = "22"
   destination_address_prefix  = "*"

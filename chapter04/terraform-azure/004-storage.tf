@@ -25,22 +25,16 @@ resource "azurerm_storage_account" "sa" {
   tags                      = var.default_tags
 }
 
-# This block of code gets information on the public IP address of the current machine
-data "http" "current_ip" {
-  url = "https://api.ipify.org?format=json"
-}
-
 # This block of code creates a resource of type "azurerm_storage_account_network_rules", which represents the network rules for an Azure Storage Account using the IP address of the current machine
 resource "azurerm_storage_account_network_rules" "sa" {
   storage_account_id = azurerm_storage_account.sa.id
   default_action     = var.sa_network_default_action
-  ip_rules           = setunion(var.sa_network_trusted_ips, ["${jsondecode(data.http.current_ip.response_body).ip}"])
+  ip_rules           = setunion(var.network_trusted_ips, ["${jsondecode(data.http.current_ip.response_body).ip}"])
   bypass             = var.sa_network_bypass
   virtual_network_subnet_ids = [
     for subnet_id in azurerm_subnet.vnet_subnets :
     subnet_id.id
   ]
-
 }
 
 # This block of code creates a resource of type "azurerm_storage_share", which represents an Azure Storage Share

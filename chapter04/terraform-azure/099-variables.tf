@@ -51,6 +51,14 @@ variable "wp_admin_email" {
 
 # Networking Variables
 ######################################################################################################
+
+variable "network_trusted_ips" {
+  description = "Optional list if IP addresses which need access, your current IP will be added automatically"
+  type        = list(any)
+  default = [
+  ]
+}
+
 variable "vnet_address_space" {
   description = "The address space of vnet"
   type        = list(any)
@@ -95,19 +103,18 @@ variable "vnet_subnets" {
   }
 }
 
+variable "subnet_for_vms" {
+  description = "Reference to put the virtual machines in"
+  default     = "virtual_network_subnets_001"
+}
 variable "subnet_for_endpoints" {
   description = "Reference to put the private endpoint in"
   default     = "virtual_network_subnets_002"
 }
 
 variable "subnet_for_database" {
-  description = "Reference to put the private endpoint in"
+  description = "Reference to put the database endpoint in"
   default     = "virtual_network_subnets_003"
-}
-
-variable "subnet_for_vms" {
-  description = "Reference to put the virtual machines in"
-  default     = "virtual_network_subnets_001"
 }
 
 # Storeage Variables
@@ -139,12 +146,7 @@ variable "sa_min_tls_version" {
   default     = "TLS1_2"
 }
 
-variable "sa_network_trusted_ips" {
-  description = "Optional list if IP addresses which need access, your current IP will be added automatically"
-  type        = list(any)
-  default = [
-  ]
-}
+
 
 variable "sa_network_bypass" {
   description = "Optional list if IP addresses which need access, your current IP will be added automatically"
