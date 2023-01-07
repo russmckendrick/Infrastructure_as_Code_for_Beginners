@@ -2,7 +2,7 @@
 # tasks file for roles/azure-vm-admin
 
 - name: Create the network interface for the admin vm
-  azure_rm_networkinterface:
+  azure.azcollection.azure_rm_networkinterface:
     resource_group: "{{ resource_group_name }}"
     location: "{{ location }}"
     name: "{{ dict.network_interface }}-{{ vm_name }}"
@@ -18,7 +18,7 @@
     tags: "{{ common_tags }}"
 
 - name: Get facts for the load-balancer Public IP
-  azure_rm_publicipaddress_info:
+  azure.azcollection.azure_rm_publicipaddress_info:
     resource_group: "{{ resource_group_name }}"
     name: "pip-{{ load_balancer_name }}"
   register: load_balancer_public_ip_output
@@ -33,7 +33,7 @@
     dest: "{{ tmp_file_create_cloud_init_admin_task.path }}"
 
 - name: Create the admin virtual machine
-  azure_rm_virtualmachine:
+  azure.azcollection.azure_rm_virtualmachine:
     resource_group: "{{ resource_group_name }}"
     name: "{{ vm_name }}"
     admin_username: "{{ vm_config.admin_username }}"

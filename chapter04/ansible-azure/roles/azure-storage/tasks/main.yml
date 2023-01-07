@@ -7,20 +7,20 @@
   register: "current_sub_id"
 
 - name: Set the current subscription id using the facts we just grabbed as a variable using some regex
-  set_fact:
+  ansible.builtin.set_fact:
     sub_id: "{{ current_sub_id.resourcegroups[0].id | regex_findall('^/[^/]+/([^/]*)') | list | join }}"
 
 - name: Generate temp file for the network acl rules
-  tempfile:
+  ansible.builtin.tempfile:
   register: tmp_file_virtual_network_rules
 
 - name: create variables file for the network acls from a template
-  template:
+  ansible.builtin.template:
     src: "create-virtual-network-rules-variables.yml.j2"
     dest: "{{ tmp_file_virtual_network_rules.path }}"
 
 - name: "Load the variables for the network acls from the template we just created"
-  include_vars:
+  ansible.builtin.include_vars:
     file: "{{ tmp_file_virtual_network_rules.path }}"
 
 - name: Create a storage account

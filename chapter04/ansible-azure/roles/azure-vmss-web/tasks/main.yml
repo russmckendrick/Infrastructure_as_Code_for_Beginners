@@ -11,7 +11,7 @@
     dest: "{{ tmp_file_create_cloud_init_web_task.path }}"
 
 - name: Create VMSS with an image that requires plan information
-  azure_rm_virtualmachinescaleset:
+  azure.azcollection.azure_rm_virtualmachinescaleset:
     resource_group: "{{ resource_group_name }}"
     name: "{{ vmss_name }}"
     admin_username: "{{ vm_config.admin_username }}"

@@ -2,14 +2,14 @@
 # tasks file for roles/azure-virtualnetwork
 
 - name: Create the virtual network
-  azure_rm_virtualnetwork:
+  azure.azcollection.azure_rm_virtualnetwork:
     resource_group: "{{ resource_group_name }}"
     name: "{{ virtual_network_name }}"
     address_prefixes: "{{ vnet_config.cidr_block }}"
     tags: "{{ common_tags }}"
 
 - name: Add the subnets
-  azure_rm_subnet:
+  azure.azcollection.azure_rm_subnet:
     resource_group: "{{ resource_group_name }}"
     name: "{{ item.name }}"
     address_prefix: "{{ item.subnet }}"
@@ -21,7 +21,7 @@
   register: subnet_output
 
 - name: Add the subnets
-  azure_rm_subnet:
+  azure.azcollection.azure_rm_subnet:
     resource_group: "{{ resource_group_name }}"
     name: "{{ item.name }}"
     address_prefix: "{{ item.subnet }}"
@@ -37,27 +37,27 @@
   when: "item.name is search 'database'"
 
 - name: Find out your current public IP address using https://ipify.org/
-  ipify_facts:
+  community.general.ipify_facts:
   register: public_ip
 
 - name: Register your public ip as a fact
-  set_fact:
+  ansible.builtin.set_fact:
     your_public_ip: "{{ public_ip.ansible_facts.ipify_public_ip }}"
 
 - name: Generate temp file for the network security rules
-  tempfile:
+  ansible.builtin.tempfile:
   register: tmp_file_create_nsg_task
 
 - name: Create playbook for network security rules creation tasks from a template
-  template:
+  ansible.builtin.template:
     src: "create-nsg-task.yml.j2"
     dest: "{{ tmp_file_create_nsg_task.path }}"
 
 - name: Load network security rules tasks
-  include_tasks: "{{ tmp_file_create_nsg_task.path }}"
+  ansible.builtin.include_tasks: "{{ tmp_file_create_nsg_task.path }}"
 
 - name: Create the public IP address needed for the load balancer
-  azure_rm_publicipaddress:
+  azure.azcollection.azure_rm_publicipaddress:
     resource_group: "{{ resource_group_name }}"
     allocation_method: "Static"
     name: "pip-{{ load_balancer_name }}"
@@ -65,7 +65,7 @@
     tags: "{{ common_tags }}"
 
 - name: Create load balancer using the public IP we created
-  azure_rm_loadbalancer:
+  azure.azcollection.azure_rm_loadbalancer:
     resource_group: "{{ resource_group_name }}"
     name: "{{ load_balancer_name }}"
     sku: "Standard"
@@ -94,12 +94,3 @@
         protocol: "Tcp"
         frontend_ip_configuration_name: "{{ load_balancer_name }}-frontend-ip-config"
     tags: "{{ common_tags }}"
-
-- name: Get facts about our resource group so we can get the subscription id
-  azure.azcollection.azure_rm_resourcegroup_info:
-    name: "{{ resource_group_name }}"
-  register: "current_sub_id"
-
-- name: Set the current subscription id using the facts we just grabbed as a variable using some regex
-  set_fact:
-    sub_id: "{{ current_sub_id.resourcegroups[0].id | regex_findall('^/[^/]+/([^/]*)') | list | join }}"
