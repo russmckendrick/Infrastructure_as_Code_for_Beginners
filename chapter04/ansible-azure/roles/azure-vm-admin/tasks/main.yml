@@ -24,11 +24,11 @@
   register: load_balancer_public_ip_output
 
 - name: Generate temp admin cloud-init file
-  tempfile:
+  ansible.builtin.tempfile:
   register: tmp_file_create_cloud_init_admin_task
 
 - name: Create thw admin cloud-init file from a template file
-  template:
+  ansible.builtin.template:
     src: "vm-cloud-init-admin.yml.j2"
     dest: "{{ tmp_file_create_cloud_init_admin_task.path }}"
 

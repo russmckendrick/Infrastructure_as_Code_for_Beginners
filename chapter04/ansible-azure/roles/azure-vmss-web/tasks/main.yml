@@ -2,11 +2,11 @@
 # tasks file for roles/azure-vmss-web
 
 - name: Generate temp web cloud-init file
-  tempfile:
+  ansible.builtin.tempfile:
   register: tmp_file_create_cloud_init_web_task
 
 - name: Create the web cloud-init file from a template file
-  template:
+  ansible.builtin.template:
     src: "vm-cloud-init-web.yml.j2"
     dest: "{{ tmp_file_create_cloud_init_web_task.path }}"
 
