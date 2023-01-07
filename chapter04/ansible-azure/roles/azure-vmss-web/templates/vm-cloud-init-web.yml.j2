@@ -23,8 +23,8 @@ packages:
 
 runcmd:
   # Mount the NFS share and add it to fstab
-  - sudo mount -t nfs ${tmpl_file_share} /var/www/html -o vers=4,minorversion=1,sec=sys
-  - echo "${tmpl_file_share} /var/www/html nfs vers=4,minorversion=1,sec=sys" | sudo tee --append /etc/fstab
+  - sudo mount -t nfs {{storage_account_name}}.{{ sa_config.sa_zone_name }}:/{{storage_account_name}}/{{ sa_config.share_name }} /var/www/html -o vers=4,minorversion=1,sec=sys
+  - echo "{{storage_account_name}}.{{ sa_config.sa_zone_name }}:/{{storage_account_name}}/{{ sa_config.share_name }} /var/www/html nfs vers=4,minorversion=1,sec=sys" | sudo tee --append /etc/fstab
 
   # Set up web site directory
   - cd /var/www/

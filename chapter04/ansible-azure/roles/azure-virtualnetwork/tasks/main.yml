@@ -1,0 +1,105 @@
+---
+# tasks file for roles/azure-virtualnetwork
+
+- name: Create the virtual network
+  azure_rm_virtualnetwork:
+    resource_group: "{{ resource_group_name }}"
+    name: "{{ virtual_network_name }}"
+    address_prefixes: "{{ vnet_config.cidr_block }}"
+    tags: "{{ common_tags }}"
+
+- name: Add the subnets
+  azure_rm_subnet:
+    resource_group: "{{ resource_group_name }}"
+    name: "{{ item.name }}"
+    address_prefix: "{{ item.subnet }}"
+    virtual_network: "{{ virtual_network_name }}"
+    service_endpoints:
+      - service: "{{ item.service_endpoints }}"
+  with_items: "{{ vnet_config.subnets }}"
+  when: "item.name is not search 'database'"
+  register: subnet_output
+
+- name: Add the subnets
+  azure_rm_subnet:
+    resource_group: "{{ resource_group_name }}"
+    name: "{{ item.name }}"
+    address_prefix: "{{ item.subnet }}"
+    virtual_network: "{{ virtual_network_name }}"
+    service_endpoints:
+      - service: "{{ item.service_endpoints }}"
+    delegations:
+      - name: "{{ item.service_delegation_name }}"
+        serviceName: "{{ item.service_delegation }}"
+        actions:
+          - "{{ item.service_delegation_action }}"
+  with_items: "{{ vnet_config.subnets }}"
+  when: "item.name is search 'database'"
+
+- name: Find out your current public IP address using https://ipify.org/
+  ipify_facts:
+  register: public_ip
+
+- name: Register your public ip as a fact
+  set_fact:
+    your_public_ip: "{{ public_ip.ansible_facts.ipify_public_ip }}"
+
+- name: Generate temp file for the network security rules
+  tempfile:
+  register: tmp_file_create_nsg_task
+
+- name: Create playbook for network security rules creation tasks from a template
+  template:
+    src: "create-nsg-task.yml.j2"
+    dest: "{{ tmp_file_create_nsg_task.path }}"
+
+- name: Load network security rules tasks
+  include_tasks: "{{ tmp_file_create_nsg_task.path }}"
+
+- name: Create the public IP address needed for the load balancer
+  azure_rm_publicipaddress:
+    resource_group: "{{ resource_group_name }}"
+    allocation_method: "Static"
+    name: "pip-{{ load_balancer_name }}"
+    sku: "standard"
+    tags: "{{ common_tags }}"
+
+- name: Create load balancer using the public IP we created
+  azure_rm_loadbalancer:
+    resource_group: "{{ resource_group_name }}"
+    name: "{{ load_balancer_name }}"
+    sku: "Standard"
+    frontend_ip_configurations:
+      - name: "{{ load_balancer_name }}-frontend-ip-config"
+        public_ip_address: "pip-{{ load_balancer_name }}"
+    backend_address_pools:
+      - name: "{{ load_balancer_name }}-backend-address-pool"
+    probes:
+      - name: "{{ load_balancer_name }}-http-probe"
+        port: "80"
+        fail_count: "3"
+        protocol: "Tcp"
+    load_balancing_rules:
+      - name: "{{ load_balancer_name }}-rule-http"
+        frontend_ip_configuration: "{{ load_balancer_name }}-frontend-ip-config"
+        backend_address_pool: "{{ load_balancer_name }}-backend-address-pool"
+        frontend_port: 80
+        backend_port: 80
+        probe: "{{ load_balancer_name }}-http-probe"
+    inbound_nat_pools:
+      - name: "{{ load_balancer_name }}-nat-ssh-vm"
+        frontend_port_range_start: "2222"
+        frontend_port_range_end: "2232"
+        backend_port: "22"
+        protocol: "Tcp"
+        frontend_ip_configuration_name: "{{ load_balancer_name }}-frontend-ip-config"
+    tags: "{{ common_tags }}"
+
+- name: Get facts about our resource group so we can get the subscription id
+  azure.azcollection.azure_rm_resourcegroup_info:
+    name: "{{ resource_group_name }}"
+  register: "current_sub_id"
+
+- name: Set the current subscription id using the facts we just grabbed as a variable using some regex
+  set_fact:
+    sub_id: "{{ current_sub_id.resourcegroups[0].id | regex_findall('^/[^/]+/([^/]*)') | list | join }}"
