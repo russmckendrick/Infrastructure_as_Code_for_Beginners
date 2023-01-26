@@ -90,7 +90,7 @@
         region: "{{ region }}"
         state: absent
 
-    - name: Delete the efs and rds security groups
+    - name: Delete the security groups
       amazon.aws.ec2_security_group:
         name: "{{ item }}"
         region: "{{ region }}"
@@ -98,18 +98,11 @@
       with_items:
         - "{{ vpc_security_group_name_efs }}"
         - "{{ vpc_security_group_name_rds }}"
-
-    - name: pause for 15 seconds
-      ansible.builtin.pause:
-        seconds: 15
-
-    - name: Delete the web groups
-      amazon.aws.ec2_security_group:
-        name: "{{ item }}"
-        region: "{{ region }}"
-        state: absent
-      with_items:
         - "{{ vpc_security_group_name_web }}"
+      register: delelte_security_groups
+      until: "delelte_security_groups is not failed"
+      retries: 25
+      delay: 10
 
     - name: Get information about the VPC
       amazon.aws.ec2_vpc_net_info:

@@ -4,6 +4,6 @@
 - name: Output details on the deployment
   ansible.builtin.debug:
     msg:
-      - "Virual Machine Password: {{ vm_password }}"
+      - "Wordpress Admin Username: {{ wordpress.wp_admin_user }}"
       - "Wordpress Admin Password: {{ wp_password }}"
       - "Wordpress URL: http://{{ alb.dns_name }}/"
