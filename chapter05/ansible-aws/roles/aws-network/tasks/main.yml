@@ -186,11 +186,12 @@
 - name: Create an ELB target group
   community.aws.elb_target_group:
     name: "{{ alb_target_group_name }}"
-    protocol: HTTP
-    port: 80
+    protocol: "HTTP"
+    port: "80"
     vpc_id: "{{ vpc.vpc.id }}"
     region: "{{ region }}"
     state: "present"
+    modify_targets: false
     tags:
       Name: "{{ alb_target_group_name }}"
       Description: "{{ dict.ansible_warning }}"

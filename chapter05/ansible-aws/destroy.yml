@@ -10,6 +10,30 @@
     - group_vars/common.yml
 
   tasks:
+
+    - name: Get information about the web Auto Scaling Group
+      amazon.aws.autoscaling_group_info:
+        name: "{{ asg_name }}"
+        region: "{{ region }}"
+      register: asgs
+
+    - name: Delete the web Auto Scaling Group
+      amazon.aws.autoscaling_group:
+        name: "{{ asg_name }}"
+        region: "{{ region }}"
+        min_size: "{{ ec2.asg.min_size }}"
+        max_size: "{{ ec2.asg.max_size }}"
+        desired_capacity: "{{ ec2.asg.desired_capacity }}"
+        suspend_processes: "Terminate"
+        state: absent
+      when: asgs.results | length > 0
+
+    - name: Delete the launch config
+      community.aws.autoscaling_launch_config:
+        name: "{{ lauch_configuration_name }}"
+        region: "{{ region }}"
+        state: absent
+
     - name: Get information about the admin EC2 instance
       amazon.aws.ec2_instance_info:
         region: "{{ region }}"
@@ -20,7 +44,7 @@
     - name: Delete the admin EC2 instance
       amazon.aws.ec2_instance:
         filters:
-          instance-id: "{{ admin_ec2_instance.instances[0].instance_id }}"
+          tag:Name: "{{ ec2_instance_name_admin }}"
         region: "{{ region }}"
         state: absent
       when: admin_ec2_instance.instances | length > 0
