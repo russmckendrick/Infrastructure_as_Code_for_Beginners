@@ -117,9 +117,7 @@
         filters: 
           "vpc-id": "{{ the_vpc.vpcs[0].id }}"
       register: the_route_tables
-
-    - debug:
-        msg: "{{ the_route_tables.route_tables }}"
+      when: the_vpc.vpcs | length > 0
 
     - name: Delete the Route Table
       amazon.aws.ec2_vpc_route_table:
@@ -128,7 +126,7 @@
         region: "{{ region }}"
         lookup: id
         state: absent
-      when:  item.associations[0].main != true
+      when: the_vpc.vpcs | length > 0 and item.associations[0].main != true
       with_items: "{{ the_route_tables.route_tables }}"
 
     - name: Delete the Internet Gateway
@@ -136,6 +134,7 @@
         vpc_id: "{{ the_vpc.vpcs[0].id }}"
         region: "{{ region }}"
         state: absent
+      when: the_vpc.vpcs | length > 0
 
     - name: Delete the Subnets
       amazon.aws.ec2_vpc_subnet:
@@ -148,6 +147,7 @@
         - "{{ the_vpc.vpcs[0].cidr_block | ansible.utils.ipsubnet(27,1) }}"
         - "{{ the_vpc.vpcs[0].cidr_block | ansible.utils.ipsubnet(27,2) }}"
         - "{{ the_vpc.vpcs[0].cidr_block | ansible.utils.ipsubnet(27,3) }}"
+      when: the_vpc.vpcs | length > 0
 
     - name: Delete the VPC
       amazon.aws.ec2_vpc_net:
