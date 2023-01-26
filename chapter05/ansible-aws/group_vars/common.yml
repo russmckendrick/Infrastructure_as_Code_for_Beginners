@@ -12,3 +12,4 @@ dict:
   application_load_balancer_target_group: "lbtg"
   elastic_file_system: "efs"
   rds_database: "rds"
+  ec2_instance: "ec2"

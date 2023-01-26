@@ -28,6 +28,7 @@
     allocated_storage: "{{ rds.allocated_storage }}"
     username: "{{ rds.username  }}"
     password: "{{ db_password }}"
+    db_name: "{{ rds.datatabase_name }}"
     db_subnet_group_name: "{{ rds_subnet_group.subnet_group.name }}"
     vpc_security_group_ids: ["{{ security_group_rds.group_id }}"]
     tags:
@@ -37,6 +38,3 @@
       Environment: "{{ app.env }}"
       Deployed_by: "Ansible"
   register: rds_database
-
-- debug:
-    msg: "RDS database created: {{ rds_database.endpoint.address }}"

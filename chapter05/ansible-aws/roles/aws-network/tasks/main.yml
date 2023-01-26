@@ -118,6 +118,10 @@
         from_port: "80"
         to_port: "80"
         cidr_ip: "0.0.0.0/0"
+      - proto: "tcp"
+        from_port: "22"
+        to_port: "22"
+        cidr_ip: "0.0.0.0/0"
     rules_egress:
       - proto: "all"
         from_port: "0"
@@ -165,7 +169,7 @@
       - proto: "tcp"
         from_port: "2049"
         to_port: "2049"
-        gorup_id: "{{ security_group_web.group_id }}"
+        group_id: "{{ security_group_web.group_id }}"
     rules_egress:
       - proto: "all"
         from_port: "0"

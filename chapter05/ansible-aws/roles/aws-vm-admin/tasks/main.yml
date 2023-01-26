@@ -1,2 +1,46 @@
 ---
 # tasks file for roles/aws-vm-admin
+
+- debug:
+    msg: |
+      "{{ efs.efs.filesystem_address | regex_replace("[^A-Za-z0-9.-]", "") }}"
+
+- name: Generate temp admin cloud-init file
+  ansible.builtin.tempfile:
+  register: tmp_file_create_cloud_init_admin_task
+
+- name: Create thw admin cloud-init file from a template file
+  ansible.builtin.template:
+    src: "vm-cloud-init-admin.yml.j2"
+    dest: "{{ tmp_file_create_cloud_init_admin_task.path }}"
+
+- name: gather information about Ubuntu AMIs published by Canonical (099720109477)
+  amazon.aws.ec2_ami_info:
+    region: "{{ region }}"
+    owners: 099720109477
+    filters:
+      name: "ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"
+      virtualization-type: "hvm"
+  register: ubuntu_ami_info
+
+- name: filter the list of AMIs to find the latest one
+  set_fact:
+    ami: "{{ ubuntu_ami_info.images | sort(attribute='creation_date') | last }}"
+
+- name: create the admin ec2 instance
+  amazon.aws.ec2_instance:
+    name: "{{ ec2_instance_name_admin }}"
+    region: "{{ region }}"
+    vpc_subnet_id: "{{ subnet_web01.subnet.id }}"
+    instance_type: "{{ ec2.instance_type }}"
+    security_group: "{{ security_group_web.group_name }}"
+    network:
+      assign_public_ip: "{{ ec2.public_ip }}"
+    image_id: "{{ ami.image_id }}"
+    user_data: "{{ lookup('file', tmp_file_create_cloud_init_admin_task.path) }}"
+    tags:
+      Name: "{{ ec2_instance_name_admin }}"
+      Description: "{{ dict.ansible_warning }}"
+      Project: "{{ app.name }}"
+      Environment: "{{ app.env }}"
+      Deployed_by: "Ansible"

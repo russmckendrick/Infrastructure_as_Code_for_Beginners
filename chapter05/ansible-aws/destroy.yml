@@ -10,6 +10,21 @@
     - group_vars/common.yml
 
   tasks:
+    - name: Get information about the admin EC2 instance
+      amazon.aws.ec2_instance_info:
+        region: "{{ region }}"
+        filters:
+          tag:Name: "{{ ec2_instance_name_admin }}"
+      register: admin_ec2_instance
+
+    - name: Delete the admin EC2 instance
+      amazon.aws.ec2_instance:
+        filters:
+          instance-id: "{{ admin_ec2_instance.instances[0].instance_id }}"
+        region: "{{ region }}"
+        state: absent
+      when: admin_ec2_instance.instances | length > 0
+
     - name: Get information about the RDS instance
       community.aws.rds_instance_info:
         region: "{{ region }}"

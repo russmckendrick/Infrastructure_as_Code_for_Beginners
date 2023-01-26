@@ -14,3 +14,4 @@
     - roles/aws-network
     - roles/aws-storage
     - roles/aws-database
+    - roles/aws-vm-admin
