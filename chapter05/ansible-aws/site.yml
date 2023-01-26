@@ -15,4 +15,4 @@
     - roles/aws-storage
     - roles/aws-database
     - roles/aws-vm-admin
-    - roles/aws-asg-web
+    # - roles/aws-asg-web

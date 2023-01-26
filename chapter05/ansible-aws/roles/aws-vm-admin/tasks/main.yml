@@ -42,6 +42,16 @@
       Deployed_by: "Ansible"
   register: ec2_instance_admin
 
+- name: Get information about the admin EC2 instance to see if its running
+  amazon.aws.ec2_instance_info:
+    region: "{{ region }}"
+    filters:
+      instance-id: "{{ ec2_instance_admin.instances[0].instance_id }}"
+  register: admin_ec2_instance_state
+  delay: 5
+  retries: 50
+  until: admin_ec2_instance_state.instances[0].state.name == "running"
+
 - name: Update the ELB target group
   community.aws.elb_target_group:
     name: "{{ alb_target_group_name }}"
